@@ -9,6 +9,10 @@
     "start:watch": "set NODE_ENV=development && ts-node-dev --respawn --transpile-only --no-notify --ignore-watch node_modules src/index.ts",
     "build": "tsc"
   },
+  "engines": {
+    "node": "16.13.x",
+    "yarn": "1.22.x"
+  },
   "dependencies": {
     "@prisma/client": "^3.7.0",
     "cors": "^2.8.5",
