@@ -13,7 +13,7 @@ const routes = Router();
 routes.get('/posts', async (request, response) => {
   const { page } = request.query;
 
-  const parsedPage = parseInt(page as string) || 1;
+  const parsedPage = Math.max(parseInt(page as string) || 1, 1);
   const postLength = await prisma.post.count();
   const posts = await prisma.post.findMany({
     skip: parsedPage * 10 - 10,
