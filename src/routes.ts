@@ -18,6 +18,9 @@ routes.get('/posts', async (request, response) => {
   const posts = await prisma.post.findMany({
     skip: parsedPage * 10 - 10,
     take: 10,
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 
   return response.json({
