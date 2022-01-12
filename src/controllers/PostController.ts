@@ -1,33 +1,39 @@
 import { Request, Response } from 'express';
+import { ValidationError } from 'yup';
 
 import { prisma } from '../database';
+import { CreatePostSchema } from '../utils/Validators';
 
 interface CreatePostInput {
   content?: string;
   validator?: string;
-  createdAt?: string;
 }
 
 export default {
   async createPost(request: Request, response: Response) {
-    const { content, validator, createdAt } = request.body as CreatePostInput;
+    const { content, validator } = request.body as CreatePostInput;
 
-    if (!content || !validator)
-      return response.status(400).json({ error: 'Missing content or validator' });
-
-    let createdAtDate: Date | undefined = undefined;
-
-    if (createdAt) createdAtDate = new Date(createdAt);
+    if (!validator) return response.status(400).json({ error: 'Validator is required' });
 
     if (validator !== process.env.VALIDATOR)
       return response.status(401).json({ error: 'Invalid validator' });
 
+    try {
+      CreatePostSchema.validateSync({ content });
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        return response.status(400).json({ error: 'Bad request' });
+      }
+
+      console.log(error);
+
+      return response.status(500).json({ error: 'Internal server error' });
+    }
+
+    const data = CreatePostSchema.cast({ content }) as any;
+
     const post = await prisma.post.create({
-      data: {
-        content,
-        createdAt: createdAtDate,
-        updatedAt: createdAtDate,
-      },
+      data,
     });
 
     return response.status(201).json(post);
