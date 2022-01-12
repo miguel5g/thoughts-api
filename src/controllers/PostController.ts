@@ -5,13 +5,14 @@ import { prisma } from '../database';
 import { CreatePostSchema } from '../utils/Validators';
 
 interface CreatePostInput {
+  note?: string;
   content?: string;
   validator?: string;
 }
 
 export default {
   async createPost(request: Request, response: Response) {
-    const { content, validator } = request.body as CreatePostInput;
+    const { content, validator, note } = request.body as CreatePostInput;
 
     if (!validator) return response.status(400).json({ error: 'Validator is required' });
 
@@ -19,7 +20,7 @@ export default {
       return response.status(401).json({ error: 'Invalid validator' });
 
     try {
-      CreatePostSchema.validateSync({ content });
+      CreatePostSchema.validateSync({ content, note });
     } catch (error) {
       if (error instanceof ValidationError) {
         return response.status(400).json({ error: 'Bad request' });
@@ -30,7 +31,7 @@ export default {
       return response.status(500).json({ error: 'Internal server error' });
     }
 
-    const data = CreatePostSchema.cast({ content }) as any;
+    const data = CreatePostSchema.cast({ content, note }) as any;
 
     const post = await prisma.post.create({
       data,
