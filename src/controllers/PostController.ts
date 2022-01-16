@@ -53,11 +53,13 @@ export default {
         {
           content: {
             contains: search,
+            mode: 'insensitive',
           },
         },
         {
           note: {
             contains: search,
+            mode: 'insensitive',
           },
         },
       ],
