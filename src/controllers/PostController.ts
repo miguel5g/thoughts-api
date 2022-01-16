@@ -79,7 +79,7 @@ export default {
       total: postLength,
       limit: parsedLimit,
       page: parsedPage,
-      pages: Math.floor(postLength / parsedLimit) + 1,
+      pages: Math.ceil(postLength / parsedLimit),
       data: posts,
     });
   },
