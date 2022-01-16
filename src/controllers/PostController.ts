@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ValidationError } from 'yup';
+import { Prisma } from '@prisma/client';
 
 import { prisma } from '../database';
 import { CreatePostSchema } from '../utils/Validators';
@@ -48,7 +49,7 @@ export default {
     const search = query.get('search') || '';
     const limit = parseInt(query.get('limit') || '10');
 
-    const where = {
+    const where: Prisma.PostWhereInput = {
       OR: [
         {
           content: {
