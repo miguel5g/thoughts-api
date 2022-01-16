@@ -3,6 +3,7 @@ import { ValidationError } from 'yup';
 
 import { prisma } from '../database';
 import { CreatePostSchema } from '../utils/Validators';
+import { minMax } from '../utils';
 
 interface CreatePostInput {
   note?: string;
@@ -45,6 +46,7 @@ export default {
 
     const page = parseInt(query.get('page') || '1');
     const search = query.get('search') || '';
+    const limit = parseInt(query.get('limit') || '10');
 
     const where = {
       OR: [
@@ -62,10 +64,11 @@ export default {
     };
 
     const parsedPage = Math.max(page, 1);
+    const parsedLimit = minMax(2, 20, limit);
     const postLength = await prisma.post.count({ where });
     const posts = await prisma.post.findMany({
-      skip: parsedPage * 10 - 10,
-      take: 10,
+      skip: parsedPage * parsedLimit - parsedLimit,
+      take: parsedLimit,
       orderBy: {
         createdAt: 'desc',
       },
@@ -74,9 +77,9 @@ export default {
 
     return response.json({
       total: postLength,
-      limit: 10,
+      limit: parsedLimit,
       page: parsedPage,
-      pages: Math.floor(postLength / 10) + 1,
+      pages: Math.floor(postLength / parsedLimit) + 1,
       data: posts,
     });
   },
