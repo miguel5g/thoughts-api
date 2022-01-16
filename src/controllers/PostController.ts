@@ -41,16 +41,35 @@ export default {
   },
 
   async getPosts(request: Request, response: Response) {
-    const { page } = request.query;
+    const query = new URLSearchParams(request.url.split('?')[1]);
 
-    const parsedPage = Math.max(parseInt(page as string) || 1, 1);
-    const postLength = await prisma.post.count();
+    const page = parseInt(query.get('page') || '1');
+    const search = query.get('search') || '';
+
+    const where = {
+      OR: [
+        {
+          content: {
+            contains: search,
+          },
+        },
+        {
+          note: {
+            contains: search,
+          },
+        },
+      ],
+    };
+
+    const parsedPage = Math.max(page, 1);
+    const postLength = await prisma.post.count({ where });
     const posts = await prisma.post.findMany({
       skip: parsedPage * 10 - 10,
       take: 10,
       orderBy: {
         createdAt: 'desc',
       },
+      where,
     });
 
     return response.json({
