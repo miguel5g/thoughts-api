@@ -1,10 +1,10 @@
 import { Router } from 'express';
 
-import PostController from './controllers/PostController';
+import ThoughtsController from './controllers/ThoughtsController';
 
 const routes = Router();
 
-routes.get('/posts', PostController.getPosts);
-routes.post('/posts', PostController.createPost);
+routes.get('/thoughts', ThoughtsController.getPosts);
+routes.post('/thoughts', ThoughtsController.createPost);
 
 export { routes };
