@@ -3,10 +3,10 @@ import { ValidationError } from 'yup';
 import { Prisma } from '@prisma/client';
 
 import { prisma } from '../database';
-import { CreatePostSchema } from '../utils/Validators';
+import { CreateThoughtSchema } from '../utils/Validators';
 import { minMax } from '../utils';
 
-interface CreatePostInput {
+interface CreateThoughtInput {
   note?: string;
   content?: string;
   validator?: string;
@@ -14,7 +14,7 @@ interface CreatePostInput {
 
 export default {
   async createPost(request: Request, response: Response) {
-    const { content, validator, note } = request.body as CreatePostInput;
+    const { content, validator, note } = request.body as CreateThoughtInput;
 
     if (!validator) return response.status(400).json({ error: 'Validator is required' });
 
@@ -22,7 +22,7 @@ export default {
       return response.status(401).json({ error: 'Invalid validator' });
 
     try {
-      CreatePostSchema.validateSync({ content, note });
+      CreateThoughtSchema.validateSync({ content, note });
     } catch (error) {
       if (error instanceof ValidationError) {
         return response.status(400).json({ error: 'Bad request' });
@@ -33,9 +33,9 @@ export default {
       return response.status(500).json({ error: 'Internal server error' });
     }
 
-    const data = CreatePostSchema.cast({ content, note }) as any;
+    const data = CreateThoughtSchema.cast({ content, note }) as any;
 
-    const post = await prisma.post.create({
+    const post = await prisma.thought.create({
       data,
     });
 
@@ -49,7 +49,7 @@ export default {
     const search = query.get('search') || '';
     const limit = parseInt(query.get('limit') || '10');
 
-    const where: Prisma.PostWhereInput = {
+    const where: Prisma.ThoughtWhereInput = {
       OR: [
         {
           content: {
@@ -68,8 +68,8 @@ export default {
 
     const parsedPage = Math.max(page, 1);
     const parsedLimit = minMax(2, 20, limit);
-    const postLength = await prisma.post.count({ where });
-    const posts = await prisma.post.findMany({
+    const postLength = await prisma.thought.count({ where });
+    const posts = await prisma.thought.findMany({
       skip: parsedPage * parsedLimit - parsedLimit,
       take: parsedLimit,
       orderBy: {

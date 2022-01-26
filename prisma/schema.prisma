@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
+model Thought {
   id        String   @id @default(uuid())
   content   String
   note      String?
